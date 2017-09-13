@@ -1,21 +1,26 @@
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<div class="navbar navbar-light bg-light navbar-fixed-top" role="navigation">
   <div class="container-fluid">
     <div class="navbar-header">
+    <a class="navbar-brand" href="#"><p class="fa fa-hashtag"></p>tinyApp</a>
     </div>
-    <ul class="nav navbar-nav navbar-right">
-      <%if(username){%>
-        <form action="/logout" method="POST">
-          <label for="username"><%= username%></label>
-          <button type="submit" class="btn btn-defult" value="Submit">Logout</button>
-        </form>
-      <%}else{%>
-      <form action="/login" method="POST">
-        <label for="username"></label>
-        <input id="username" type="text" name="username" placeholder="username">
-          <button type="submit" class="btn btn-primary" value="Submit">Login</button>
-      </form>
-      <%};%>
-    </ul>
-  </div>
-</div>
 
+      <ul class="nav navbar-nav navbar-right">
+        <%if(username){%>
+        <li class="nav-item">
+          <form action="/logout" method="POST">
+            <label for="username"><%= username%></label>
+            <button type="submit" class="btn btn-defult" value="Submit">Logout</button>
+          </form>
+        </li>
+        <%}else{%>
+        <li class="nav-item">
+          <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
+            <label for="username"></label>
+            <input class="form-control mr-sm-2" id="username" type="text" name="username" placeholder="Username">
+            <button type="submit" class="btn btn-outline-success my-2 my-sm-0" value="Submit">Login</button>
+          </form>
+        </li>
+        <%};%>
+      </ul>
+    </div>
+  </div>

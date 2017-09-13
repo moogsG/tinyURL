@@ -1,9 +1,5 @@
-
-<div class="form-inline" style="
-  padding-top: 10em;">
-  <form action="/urls" method="POST">
-      <label for="longURL"></label>
-      <input id="longURL" type="text" name="longURL" placeholder="Your Original URL">
-      <button type="submit" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Include 'http://'" value="Submit">Shorten URL</button>
-  </form>
-</div>
+<form action="/urls" method="POST" class="form-inline my-2 my-lg-0">
+  <label for="longURL"></label>
+  <input class="form-control mr-sm-2" id="longURL" type="text" name="longURL" placeholder="Your Original URL">
+  <button type="submit" class="btn btn-info my-2 my-sm-0" data-toggle="tooltip" data-placement="right" title="Include 'http://'" value="Submit">Shorten URL</button>
+</form>

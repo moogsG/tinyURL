@@ -1,0 +1,64 @@
+<div class="list-group">
+  <table class="table">
+    <thead class="thead-default">
+      <tr>
+        <th>tinyAPP</th>
+        <th>Target</th>
+        <th>Options</th>
+      </tr>
+      <%for(key in urls){%>
+      <tr>
+        <td><a href="/urls/<%=key%>"> <%=key%> </a></td>
+        <td><a href="<%=urls[key]%>"><%=urls[key]%></a></td>
+        <td>
+          <button type="button" class="btn btn-danger fa fa-trash" data-toggle="modal" data-target="#delete<%=key%>"></button>
+          <div class="modal fade" id="delete<%=key%>" tabindex="-1" role="dialog" aria-labelledby="delete" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteLabel">Remove URL</h5>
+                </div>
+                <div class="modal-body">
+                  <h4>Delete URL?</h4>
+                  <p><%=urls[key]%></p>
+                  <p>This action cannot be undone.</p>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <form action="/urls/<%=key%>/delete" method="POST" >
+                      <button type="submit" class="btn btn-danger" value="Submit">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary fa fa-edit" data-toggle="modal" data-target="#update<%=key%>"></button>
+          <div class="modal fade" id="update<%=key%>" tabindex="-1" role="dialog" aria-labelledby="update" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-Title" id="updateLabel">
+                  Update URL
+                  </h5>
+                </div>
+                <div class="modal-body">
+                  <form action="/urls/<%=key%>/update" method="POST">
+                    <label for="shortURL"></label>
+                    <input id="shortURL" type="hidden" name="shortURL" placeholder="shortURL" value="<%=key%>">
+                    <label for="longURL"></label>
+                    <input id="longURL" type="text" name="longURL" placeholder="<%=urls[key]%>">
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary" value="Submit">Update</button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <%};%>
+  <tbody>
+</table>
