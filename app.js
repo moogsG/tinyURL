@@ -1,4 +1,3 @@
-"use strict";
 var express = require('express');
 var path = require('path');
 var app = express();
@@ -7,6 +6,7 @@ app.use(express.static("public")); //To grab images
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
 var PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 
@@ -14,11 +14,9 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+
 // routes
-
-//GET
-//app.get("url"), (req, res)
-
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -40,7 +38,8 @@ app.get("/urls/:id", (req, res) => {
 
   let templateVars = {
     shortURL: req.params.id,
-    urls: urlDatabase
+    // urls: urlDatabase,
+    targetURL: urlDatabase[req.params.id]
   };
   res.render("urls_show", templateVars);
 });
@@ -49,8 +48,8 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]);
 });
 
-// POST
 
+// POST
 app.post("/urls", (req, res) => {
   if (req.body['longURL'].includes('http://')) {
     req.body = req.body['longURL']
@@ -61,6 +60,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[key] = req.body;
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
+
 
 //Global functions
 function generateRandomString() {

@@ -13,7 +13,7 @@
             <div class="container">
                 <h1> Tiny URL</h1>
                 <h4>Shorten any url!</h4>
-                 <% include ./partials/_form %>
+                <% include ./partials/_form %>
             </div>
         </div>
         <div class="page-header">
@@ -21,12 +21,27 @@
         </div>
         <div class="content">
             <div class="container">
-                <ul class="list-group">
-                    <%for(key in urls){%>
-                    <li class="list-group-item text-center"><%=key%> -- <a href="<%=key[urls]%>"><%=urls[key]%></a></li>
-                    <%};%>
-                </ul>
-            </div>
-        </div>
-    </body>
-</html>
+                <div class="list-group">
+                    <table class="table">
+                        <thead class="thead-default">
+                            <tr>
+                                <th>tinyURL</th>
+                                <th>Target</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%for(key in urls){%>
+                            <tr>
+                                <td><a href="urls/<%=key%>"><%=key%></a></td>
+                                <td><a href="<%=urls[key]%>"><%=urls[key]%></a></td>
+                                <td>Options</td>
+                                <%};%>
+                            </tr>
+                            <tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </body>
+        </html>
