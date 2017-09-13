@@ -83,6 +83,16 @@ app.post("/urls/:id/delete", (req, res) => {
 
 });
 
+app.post("/urls/:id/update", (req, res) => {
+    console.log(req.body)
+    if (req.body['longURL'].includes('http://')) {
+    } else {
+        req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+    }
+     urlDatabase[req.body['shortURL']] = req.body['longURL'];
+    res.redirect('/urls');
+
+});
 
 //Global functions
 function generateRandomString() {

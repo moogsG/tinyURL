@@ -33,15 +33,35 @@
                         <tbody>
                             <%for(key in urls){%>
                             <tr>
-                                <td><a href="urls/<%=key%>"><%=key%></a></td>
+                                <td><a href="/urls/<%=key%>"> <%=key%> </a></td>
                                 <td><a href="<%=urls[key]%>"><%=urls[key]%></a></td>
-                                <td><form action="/urls/<%=key%>/delete" method="POST" ><button type="submit" class="fa fa-trash" value="Submit"></button></form>
-</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger fa fa-trash" data-toggle="modal" data-target="#delete"></button>
+                                </td>
                                 <%};%>
                             </tr>
                             <tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+                <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="delete" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteLabel">Remove URL</h5>
+                            </div>
+                            <div class="modal-body">
+                                <h4>Delete URL?</h4>
+                                <p>This action cannot be undone.</p>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <form action="/urls/<%=key%>/delete" method="POST" >
+                                        <button type="submit" class="btn btn-danger" value="Submit">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </body>

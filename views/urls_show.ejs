@@ -3,3 +3,13 @@
 
     <%=  targetURL %> -<%= shortURL %>
 
+<div class="form-inline" style="
+  padding-top: 10em;">
+  <form action="/urls/:id/update" method="POST">
+      <label for="asdf"></label>
+      <input id="shortURL" type="hidden" name="shortURL" placeholder="shortURL" value="<%=shortURL%>">
+      <label for="longURL"></label>
+      <input id="longURL" type="text" name="longURL" placeholder="targetURL">
+      <button type="submit" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Include 'http://'" value="Submit">Update</button>
+  </form>
+</div>
