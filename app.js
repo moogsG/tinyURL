@@ -84,7 +84,6 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-    console.log(req.body)
     if (req.body['longURL'].includes('http://')) {
     } else {
         req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
@@ -97,6 +96,14 @@ app.post("/urls/:id/update", (req, res) => {
 //Global functions
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
+}
+
+function httpCheck(url) {
+    if (req.body['longURL'].includes('http://')) {
+        return;
+    } else {
+        return req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+    }
 }
 
 
