@@ -34,6 +34,15 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/urls/:id/delete", (req, res) => {
+
+  let templateVars = {
+    urls: urlDatabase
+  };
+
+  res.render('urls_index', templateVars);
+});
+
 app.get("/urls/:id", (req, res) => {
 
   let templateVars = {
@@ -41,8 +50,8 @@ app.get("/urls/:id", (req, res) => {
     targetURL: urlDatabase[req.params.id]
   };
   if (urlDatabase[req.params.id]) {
-  res.render("urls_show", templateVars);
-  }else {
+    res.render("urls_show", templateVars);
+  } else {
     res.send("404");
   }
 });
@@ -61,7 +70,17 @@ app.post("/urls", (req, res) => {
   }
   let key = generateRandomString();
   urlDatabase[key] = req.body;
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  res.redirect('/urls'); // Respond with 'Ok' (we will replace this)
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  if (urlDatabase[req.params.id]) {
+    delete urlDatabase[req.params.id];
+    res.redirect('/urls');
+  } else {
+    res.send("Does not exist");
+  }
+
 });
 
 
@@ -69,6 +88,7 @@ app.post("/urls", (req, res) => {
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 }
+
 
 module.exports = app;
 app.listen(8080);

@@ -35,7 +35,8 @@
                             <tr>
                                 <td><a href="urls/<%=key%>"><%=key%></a></td>
                                 <td><a href="<%=urls[key]%>"><%=urls[key]%></a></td>
-                                <td>Options</td>
+                                <td><form action="/urls/<%=key%>/delete" method="POST" ><button type="submit" class="fa fa-trash" value="Submit"></button></form>
+</td>
                                 <%};%>
                             </tr>
                             <tr>
