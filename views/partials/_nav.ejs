@@ -3,7 +3,18 @@
     <div class="navbar-header">
     </div>
     <ul class="nav navbar-nav navbar-right">
-
+      <%if(username){%>
+        <form action="/logout" method="POST">
+          <label for="username"><%= username%></label>
+          <button type="submit" class="btn btn-defult" value="Submit">Logout</button>
+        </form>
+      <%}else{%>
+      <form action="/login" method="POST">
+        <label for="username"></label>
+        <input id="username" type="text" name="username" placeholder="username">
+          <button type="submit" class="btn btn-primary" value="Submit">Login</button>
+      </form>
+      <%};%>
     </ul>
   </div>
 </div>

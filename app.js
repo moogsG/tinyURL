@@ -1,11 +1,14 @@
 var express = require('express');
 var path = require('path');
+var cookieParser = require('cookie-parser')
 var app = express();
 const bodyParser = require("body-parser");
+
 app.use(express.static("public")); //To grab images
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+app.use(cookieParser())
 
 var PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs");
@@ -24,6 +27,7 @@ app.get("/", (req, res) => {
 app.get('/urls', (req, res) => {
 
   let templateVars = {
+    username: req.cookies["username"],
     urls: urlDatabase
   };
 
@@ -35,8 +39,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id/delete", (req, res) => {
-
   let templateVars = {
+    username: req.cookies["username"],
     urls: urlDatabase
   };
 
@@ -46,6 +50,7 @@ app.get("/urls/:id/delete", (req, res) => {
 app.get("/urls/:id", (req, res) => {
 
   let templateVars = {
+    username: req.cookies["username"],
     shortURL: req.params.id,
     targetURL: urlDatabase[req.params.id]
   };
@@ -84,13 +89,22 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-    if (req.body['longURL'].includes('http://')) {
-    } else {
-        req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
-    }
-     urlDatabase[req.body['shortURL']] = req.body['longURL'];
-    res.redirect('/urls');
+  if (req.body['longURL'].includes('http://')) {} else {
+    req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+  }
+  urlDatabase[req.body['shortURL']] = req.body['longURL'];
+  res.redirect('/urls');
 
+});
+
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body['username']).redirect('/urls');
+  console.log('Cookies: ', res.cookies)
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username').redirect('/urls');
+  console.log('Cookies: ', res.cookies)
 });
 
 //Global functions
@@ -99,11 +113,11 @@ function generateRandomString() {
 }
 
 function httpCheck(url) {
-    if (req.body['longURL'].includes('http://')) {
-        return;
-    } else {
-        return req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
-    }
+  if (req.body['longURL'].includes('http://')) {
+    return;
+  } else {
+    return req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+  }
 }
 
 
