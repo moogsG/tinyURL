@@ -38,10 +38,13 @@ app.get("/urls/:id", (req, res) => {
 
   let templateVars = {
     shortURL: req.params.id,
-    // urls: urlDatabase,
     targetURL: urlDatabase[req.params.id]
   };
+  if (urlDatabase[req.params.id]) {
   res.render("urls_show", templateVars);
+  }else {
+    res.send("404");
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
