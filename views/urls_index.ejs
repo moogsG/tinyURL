@@ -11,7 +11,7 @@
             -o-background-size: cover;
             background-size: cover;">
             <div class="container">
-                <h1> Tiny URL</h1>
+                <h1> Tiny App</h1>
                 <h4>Shorten any url!</h4>
                 <% include ./partials/_form %>
             </div>
@@ -36,57 +36,58 @@
                                 <td><a href="/urls/<%=key%>"> <%=key%> </a></td>
                                 <td><a href="<%=urls[key]%>"><%=urls[key]%></a></td>
                                 <td>
-                                    <button type="button" class="btn btn-danger fa fa-trash" data-toggle="modal" data-target="#delete"></button>
-                                    <button type="button" class="btn btn-primary fa fa-edit" data-toggle="modal" data-target="#update"></button>
-                                </td>
-                                <div class="modal fade" id="update" tabindex="-1" role="dialog" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-Title" id="updateLabel">
-                                                Update URL
-                                            </h5>
-                                        </div>
-                                        <div class="modal-body">
-                                              <form action="/urls/:id/update" method="POST">
-                                                <label for="shortURL"></label>
-                                                <input id="shortURL" type="hidden" name="shortURL" placeholder="shortURL" value="<%=key%>">
-                                                <label for="longURL"></label>
-                                                <input id="longURL" type="text" name="longURL" placeholder="<%=urls[key]%>">
-                                                <div class="modal-footer">
-                                                  <button type="submit" class="btn btn-primary" data-toggle="tooltip" data-placement="right" title="Include 'http://'" value="Submit">Update</button>
-                                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-danger fa fa-trash" data-toggle="modal" data-target="#delete<%=key%>"></button>
+                                    <div class="modal fade" id="delete<%=key%>" tabindex="-1" role="dialog" aria-labelledby="delete" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteLabel">Remove URL</h5>
                                                 </div>
-                                              </form>
+                                                <div class="modal-body">
+                                                    <h4>Delete URL?</h4>
+                                                    <p><%=urls[key]%></p>
+                                                    <p>This action cannot be undone.</p>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        <form action="/urls/<%=key%>/delete" method="POST" >
+                                                            <button type="submit" class="btn btn-danger" value="Submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    </div>
-                                </div>
-                                <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="delete" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteLabel">Remove URL</h5>
-                                            </div>
-                                            <div class="modal-body">
-                                                <h4>Delete URL?</h4>
-                                                <p>This action cannot be undone.</p>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    <form action="/urls/<%=key%>/delete" method="POST" >
-                                                        <button type="submit" class="btn btn-danger" value="Submit">Delete</button>
+                                    <button type="button" class="btn btn-primary fa fa-edit" data-toggle="modal" data-target="#update<%=key%>"></button>
+                                    <div class="modal fade" id="update<%=key%>" tabindex="-1" role="dialog" aria-labelledby="update" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-Title" id="updateLabel">
+                                                    Update URL
+                                                    </h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="/urls/<%=key%>/update" method="POST">
+                                                        <label for="shortURL"></label>
+                                                        <input id="shortURL" type="hidden" name="shortURL" placeholder="shortURL">
+                                                        <label for="longURL"></label>
+                                                        <input id="longURL" type="text" name="longURL" placeholder="<%=urls[key]%>">
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-primary" value="Submit">Update</button>
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <%};%>
-                            </tr>
-                            <tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </body>
-        </html>
+                            </td>
+                        </tr>
+                        <%};%>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

@@ -8,6 +8,7 @@ app.use(express.static("public")); //To grab images
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
 app.use(cookieParser())
 
 var PORT = process.env.PORT || 8080;
@@ -69,12 +70,11 @@ app.get("/u/:shortURL", (req, res) => {
 // POST
 app.post("/urls", (req, res) => {
   if (req.body['longURL'].includes('http://')) {
-    req.body = req.body['longURL']
   } else {
-    req.body = req.body['longURL'].replace(/^/, 'http://');
+    req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
   }
   let key = generateRandomString();
-  urlDatabase[key] = req.body;
+  urlDatabase[key] = req.body['longURL'];
   res.redirect('/urls'); // Respond with 'Ok' (we will replace this)
 });
 
@@ -89,7 +89,9 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-  if (req.body['longURL'].includes('http://')) {} else {
+  if (req.body['longURL'].includes('http://')) {
+
+  } else {
     req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
   }
   urlDatabase[req.body['shortURL']] = req.body['longURL'];
@@ -99,7 +101,6 @@ app.post("/urls/:id/update", (req, res) => {
 
 app.post("/login", (req, res) => {
   res.cookie('username', req.body['username']).redirect('/urls');
-  console.log('Cookies: ', res.cookies)
 });
 
 app.post("/logout", (req, res) => {
