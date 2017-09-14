@@ -15,6 +15,8 @@ app.use(cookieParser())
 var PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
 //Global functions
 
 /*Generates random six char string
@@ -65,8 +67,9 @@ let users = {
   }
 };
 let publicData = [];
+
 function urlsForUser(id) {
-    publicData = [];
+  publicData = [];
   let data = [];
   for (var x in urlDatabase) {
     if (urlDatabase[x].userID === id) {
@@ -105,7 +108,7 @@ app.get('/urls', (req, res) => {
   let data = [];
   if (!req.cookies.username) {
     data = urlsForUser(null);
-  } else{
+  } else {
     data = urlsForUser(req.cookies.username.id);
   }
 
@@ -114,7 +117,6 @@ app.get('/urls', (req, res) => {
     urls: data,
     publicUrls: publicData
   }
-  console.log(publicData);
   res.render('urls_index', templateVars);
 });
 
@@ -215,13 +217,13 @@ app.post("/register", (req, res, next) => {
         }
       }
     }
+    let hash = bcrypt.hashSync(req.body['password'], 10);
     users[key] = {
       id: key,
       name: req.body['name'],
       email: req.body['email'],
-      password: req.body['password']
+      password: hash
     };
-    console.log(users);
     res.cookie('username', users[key]).redirect('/urls');
   })
   /*Updates cookies with username
@@ -234,14 +236,17 @@ app.post("/login", (req, res, next) => {
     var value = users[key];
     for (var email in value) {
       if (value[email] === req.body['email']) {
-        for (var pass in value) {
-          if (value[pass] === req.body['password']) {
-            res.cookie('username', value).redirect('/urls');
-          }
-        }
+        if (bcrypt.compareSync(req.body['password'], value.password)) {
+          res.cookie('username', value).redirect('/urls');
+        } else {
+          var err = new Error();
+          err.status = 404;
+          next(err);
+        };
       }
     }
   }
+
   var err = new Error();
   err.status = 404;
   next(err);
