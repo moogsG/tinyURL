@@ -3,7 +3,6 @@
     <div class="navbar-header">
     <a class="navbar-brand" href="#"><p class="fa fa-hashtag"></p>tinyApp</a>
     </div>
-
       <ul class="nav navbar-nav navbar-right">
         <%if(username){%>
         <li class="nav-item">
@@ -14,13 +13,13 @@
         </li>
         <%}else{%>
         <li class="nav-item">
-          <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
-            <label for="username"></label>
-            <input class="form-control mr-sm-2" id="username" type="text" name="username" placeholder="Username">
-            <button type="submit" class="btn btn-outline-success my-2 my-sm-0" value="Submit">Login</button>
-          </form>
+        <% include ./_login %>
+        </li>
+        <li class="nav-item">
+        <% include ./_register %>
         </li>
         <%};%>
       </ul>
     </div>
   </div>
+

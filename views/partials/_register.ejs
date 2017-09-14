@@ -1,0 +1,55 @@
+<!-- <form  class="form-inline my-2 my-lg-0" id="register_form" action="/register" method="POST">
+  <label for="email"></label>
+  <input class="form-control mr-sm-2" id="email" type="email" name="email" placeholder="moogs@tinyapp.ca">
+  <label for="name"></label>
+  <input class="form-control mr-sm-2" id="name" type="name" name="name" placeholder="Morgan">
+  <label for="password"></label>
+  <input class="form-control mr-sm-2" id="password" type="password" name="password" placeholder="******">
+
+</form> -->
+<!-- action="/register" method="POST" -->
+<script type="text/javascript">
+   function validateForm(){
+        var email=document.forms["register_form"]["email"].value;
+        var name=document.forms["register_form"]["name"].value;
+        var password=document.forms["register_form"]["password"].value;
+        if (!email || email =="") {
+          alert("Please enter email!");
+          return false;
+        }if (!name || name =="") {
+          alert("Please enter name!");
+          return false;
+        }if (!password || password =="" || password < 6) {
+          alert("Please enter password! (Over six characters)");
+          return false;
+        }else{
+          return true;
+        }
+      }
+</script>
+  <button  class="btn btn-primary my-2 my-sm-0" data-toggle="modal" data-target="#register">Register</button>
+<div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="register" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="registerLabel">Register</h5>
+      </div>
+      <div class="modal-body">
+        <form  class="form-inline my-2 my-lg-0" id="register_form" onsubmit="return validateForm()" action="/register" method="POST">
+          <label for="email"></label>
+          <input class="form-control mr-sm-2" id="email" type="email" name="email" placeholder="moogs@tinyapp.ca">
+          <label for="name"></label>
+          <input class="form-control mr-sm-2" id="name" type="name" name="name" placeholder="Morgan">
+          <label for="password"></label>
+          <input class="form-control mr-sm-2" id="password" type="password" name="password" placeholder="******">
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <input type="submit" class="btn btn-info my-2 my-sm-0" value="Submit">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

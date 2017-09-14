@@ -24,10 +24,10 @@ function generateRandomString() {
 }
 
 /*Not in play yet
-*************
-*
-*
-*/
+ *************
+ *
+ *
+ */
 function httpCheck(url) {
   if (req.body['longURL'].includes('http://')) {
     return;
@@ -36,25 +36,48 @@ function httpCheck(url) {
   }
 }
 
-var urlDatabase = {
+function compare(users) {
+  if (users.name === req.body['name']) {
+    return 'HI';
+  } else {
+    return data;
+  }
+}
+
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+let users = {
+  "d3ks8f": {
+    id: "d3ks8f",
+    name: "Example",
+    email: "example@tinyapp.ca",
+    password: "password"
+  },
+  "t5sf3j": {
+    id: "t5sf3j",
+    name: "Example2",
+    email: "example2@tinyapp.ca",
+    password: "password2"
+  }
 };
 
 
 // GET
 /*Set Root
-**********
-*/
+ **********
+ */
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
 /*Gets main page
-****************
-* Sends username to cookies
-* Grabs view from urls_index
-*/
+ ****************
+ * Sends username to cookies
+ * Grabs view from urls_index
+ */
 app.get('/urls', (req, res) => {
 
   let templateVars = {
@@ -71,14 +94,14 @@ app.get("/urls/new", (req, res) => {
 
 
 /*Redirect to fullURL
-*********************
-*returns the full URL
-*if short URL does not exist will call 404
-*/
+ *********************
+ *returns the full URL
+ *if short URL does not exist will call 404
+ */
 app.get("/urls/:id", (req, res) => {
 
   let templateVars = {
-    username: req.cookies["username"],
+    username: req.cookies["name"],
     shortURL: req.params.id,
     targetURL: urlDatabase[req.params.id]
   };
@@ -96,12 +119,13 @@ app.get("/u/:shortURL", (req, res) => {
 
 // POST
 /*Creates new URL
-*****************
-*Checks if http:// is present
-*Gets random key from generateRandomString
-*Adds key:url to DB
-*Redirects to /urls
-*/
+ *****************
+ *Checks if http:// is present
+ *Gets random key from generateRandomString
+ *Adds key:url to DB
+ *Redirects to /urls
+ */
+
 app.post("/urls", (req, res) => {
   if (req.body['longURL'].includes('http://')) {
     return;
@@ -113,10 +137,10 @@ app.post("/urls", (req, res) => {
   res.redirect('/urls'); // Respond with 'Ok' (we will replace this)
 });
 /*Deletes URL
-*************
-*Matches shortURL, deletes match
-*Redirects to /urls
-*/
+ *************
+ *Matches shortURL, deletes match
+ *Redirects to /urls
+ */
 app.post("/urls/:id/delete", (req, res) => {
   if (urlDatabase[req.params.id]) {
     delete urlDatabase[req.params.id];
@@ -126,35 +150,68 @@ app.post("/urls/:id/delete", (req, res) => {
   }
 });
 /*Updates URL
-*************
-*Checks new URL for http
-*Replaces old URL with matching key
-*Redirects to /urls
-*/
+ *************
+ *Checks new URL for http
+ *Replaces old URL with matching key
+ *Redirects to /urls
+ */
 app.post("/urls/:id/update", (req, res) => {
-  if (req.body['longURL'].includes('http://')) {
-  } else {
+  if (req.body['longURL'].includes('http://')) {} else {
     req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
   }
   urlDatabase[req.body['shortURL']] = req.body['longURL'];
   res.redirect('/urls');
 });
-/*Updates cookies with username
-*******************************
-*Adds cookie under username
-*Returns to /urls
-*/
+
+app.post("/register", (req, res) => {
+    let key = generateRandomString();
+    for (var x in users) {
+      var value = users[x];
+      for (var i in value) {
+        if (value[i] == req.body['name'] || value[i] == req.body['email']) {
+          res.send('Duplicate Found').redirect('/urls')
+        } else {
+          console.log('didnt work')
+        }
+      }
+    }
+    users[key] = {
+      id: key,
+      name: req.body['name'],
+      email: req.body['email'],
+      password: req.body['password']
+    };
+    console.log(users);
+    res.cookie('username', req.body['name']).redirect('/urls');
+  })
+  /*Updates cookies with username
+   *******************************
+   *Adds cookie under username
+   *Returns to /urls
+   */
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body['username']).redirect('/urls');
+  for (var key in users) {
+    var value = users[key];
+    for (var email in value) {
+      if (value[email] === req.body['email']) {
+        for (var pass in value) {
+          if (value[pass] === req.body['password']) {
+            res.cookie('username', value['name']).redirect('/urls');
+          }
+        }
+      }
+    }
+        res.send('Not valid email and password');
+        console.log('didnt work')
+  }
 });
 /*Clears cookies username
-**************************
-*Clears username cookie
-*Returns to /urls
-*/
+ **************************
+ *Clears username cookie
+ *Returns to /urls
+ */
 app.post("/logout", (req, res) => {
   res.clearCookie('username').redirect('/urls');
-  console.log('Cookies: ', res.cookies)
 });
 
 module.exports = app;
