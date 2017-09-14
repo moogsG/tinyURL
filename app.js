@@ -11,6 +11,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(cookieParser())
 
+
 var PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 
@@ -33,14 +34,6 @@ function httpCheck(url) {
     return;
   } else {
     return req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
-  }
-}
-
-function compare(users) {
-  if (users.name === req.body['name']) {
-    return 'HI';
-  } else {
-    return data;
   }
 }
 
@@ -98,7 +91,7 @@ app.get("/urls/new", (req, res) => {
  *returns the full URL
  *if short URL does not exist will call 404
  */
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id", (req, res, next) => {
 
   let templateVars = {
     username: req.cookies["name"],
@@ -108,7 +101,9 @@ app.get("/urls/:id", (req, res) => {
   if (urlDatabase[req.params.id]) {
     res.render("urls_show", templateVars);
   } else {
-    res.send("404");
+    var err = new Error();
+    err.status = 404;
+    next(err);
   }
 });
 
@@ -141,12 +136,14 @@ app.post("/urls", (req, res) => {
  *Matches shortURL, deletes match
  *Redirects to /urls
  */
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delete", (req, res, next) => {
   if (urlDatabase[req.params.id]) {
     delete urlDatabase[req.params.id];
     res.redirect('/urls');
   } else {
-    res.send("Does not exist");
+    var err = new Error();
+    err.status = 404;
+    next(err);
   }
 });
 /*Updates URL
@@ -163,15 +160,17 @@ app.post("/urls/:id/update", (req, res) => {
   res.redirect('/urls');
 });
 
-app.post("/register", (req, res) => {
+app.post("/register", (req, res, next) => {
     let key = generateRandomString();
     for (var x in users) {
       var value = users[x];
       for (var i in value) {
         if (value[i] == req.body['name'] || value[i] == req.body['email']) {
-          res.send('Duplicate Found').redirect('/urls')
+          var err = new Error();
+          err.status = 404;
+          next(err);
         } else {
-          console.log('didnt work')
+
         }
       }
     }
@@ -189,7 +188,7 @@ app.post("/register", (req, res) => {
    *Adds cookie under username
    *Returns to /urls
    */
-app.post("/login", (req, res) => {
+app.post("/login", (req, res, next) => {
   for (var key in users) {
     var value = users[key];
     for (var email in value) {
@@ -201,9 +200,18 @@ app.post("/login", (req, res) => {
         }
       }
     }
-        res.send('Not valid email and password');
-        console.log('didnt work')
+    var err = new Error();
+    err.status = 404;
+    next(err);
   }
+});
+
+app.use(function(err, req, res, next) {
+  if (err.status !== 404) {
+    return next();
+  }
+
+  res.send(err.message || '404');
 });
 /*Clears cookies username
  **************************
