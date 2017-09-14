@@ -9,7 +9,7 @@
       <%for(key in urls){%>
       <tr>
         <td><a href="/urls/<%=key%>"> <%=key%> </a></td>
-        <td><a href="<%=urls[key]%>"><%=urls[key]%></a></td>
+        <td><a href="<%=urls[key]['url']%>"><%=urls[key]['url']%></a></td>
         <td>
           <button type="button" class="btn btn-danger fa fa-trash" data-toggle="modal" data-target="#delete<%=key%>"></button>
           <div class="modal fade" id="delete<%=key%>" tabindex="-1" role="dialog" aria-labelledby="delete" aria-hidden="true">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="modal-body">
                   <h4>Delete URL?</h4>
-                  <p><%=urls[key]%></p>
+                  <p><%=urls[key]['url']%></p>
                   <p>This action cannot be undone.</p>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -46,7 +46,7 @@
                     <label for="shortURL"></label>
                     <input id="shortURL" type="hidden" name="shortURL" placeholder="shortURL" value="<%=key%>">
                     <label for="longURL"></label>
-                    <input id="longURL" type="text" name="longURL" placeholder="<%=urls[key]%>">
+                    <input id="longURL" type="text" name="longURL" placeholder="<%=urls[key]['url']%>">
                     <div class="modal-footer">
                       <button type="submit" class="btn btn-primary" value="Submit">Update</button>
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -7,14 +7,11 @@
         <%if(username){%>
         <li class="nav-item">
           <form action="/logout" method="POST">
-            <label for="username"><%= username%></label>
+            <label for="username"><%= username.name%></label>
             <button type="submit" class="btn btn-defult" value="Submit">Logout</button>
           </form>
         </li>
         <%}else{%>
-        <li class="nav-item">
-        <% include ./_login %>
-        </li>
         <li class="nav-item">
         <% include ./_register %>
         </li>

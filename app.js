@@ -38,8 +38,16 @@ function httpCheck(url) {
 }
 
 let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    shortURL: 'b2xVn2',
+    url: "http://www.lighthouselabs.ca",
+    userID: 'd3ks8f'
+  },
+  "9sm5xK": {
+    shortURL: '9sm5xK',
+    url: "http://www.google.com",
+    userID: 't5sf3j'
+  }
 };
 
 let users = {
@@ -56,8 +64,29 @@ let users = {
     password: "password2"
   }
 };
-
-
+let publicData = [];
+function urlsForUser(id) {
+    publicData = [];
+  let data = [];
+  for (var x in urlDatabase) {
+    if (urlDatabase[x].userID === id) {
+      console.log(urlDatabase[x])
+      data[x] = {
+        shortURL: urlDatabase[x].shortURL,
+        url: urlDatabase[x].url,
+        userID: urlDatabase[x].userID,
+      }
+      console.log(data);
+    } else {
+      publicData[x] = {
+        shortURL: urlDatabase[x].shortURL,
+        url: urlDatabase[x].url
+      }
+      console.log('Didnt match');
+    }
+  }
+  return data;
+};
 // GET
 /*Set Root
  **********
@@ -72,12 +101,20 @@ app.get("/", (req, res) => {
  * Grabs view from urls_index
  */
 app.get('/urls', (req, res) => {
+  //let id = req.cookies.username.id;
+  let data = [];
+  if (!req.cookies.username) {
+    data = urlsForUser(null);
+  } else{
+    data = urlsForUser(req.cookies.username.id);
+  }
 
   let templateVars = {
-    username: req.cookies["username"],
-    urls: urlDatabase
-  };
-
+    username: req.cookies.username,
+    urls: data,
+    publicUrls: publicData
+  }
+  console.log(publicData);
   res.render('urls_index', templateVars);
 });
 
@@ -94,7 +131,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res, next) => {
 
   let templateVars = {
-    username: req.cookies["name"],
+    username: req.cookies["user"],
     shortURL: req.params.id,
     targetURL: urlDatabase[req.params.id]
   };
@@ -108,7 +145,7 @@ app.get("/urls/:id", (req, res, next) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]);
+  res.redirect(urlDatabase[req.params.shortURL]['url']);
 });
 
 
@@ -128,7 +165,11 @@ app.post("/urls", (req, res) => {
     req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
   }
   let key = generateRandomString();
-  urlDatabase[key] = req.body['longURL'];
+  urlDatabase[key] = {
+    shortURL: key,
+    url: req.body['longURL'],
+    userID: req.cookies.username.id
+  }
   res.redirect('/urls'); // Respond with 'Ok' (we will replace this)
 });
 /*Deletes URL
@@ -156,7 +197,7 @@ app.post("/urls/:id/update", (req, res) => {
   if (req.body['longURL'].includes('http://')) {} else {
     req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
   }
-  urlDatabase[req.body['shortURL']] = req.body['longURL'];
+  urlDatabase[req.body['shortURL']]['url'] = req.body['longURL'];
   res.redirect('/urls');
 });
 
@@ -168,7 +209,7 @@ app.post("/register", (req, res, next) => {
         if (value[i] == req.body['name'] || value[i] == req.body['email']) {
           var err = new Error();
           err.status = 404;
-          next(err);
+          return next(err);
         } else {
 
         }
@@ -181,7 +222,7 @@ app.post("/register", (req, res, next) => {
       password: req.body['password']
     };
     console.log(users);
-    res.cookie('username', req.body['name']).redirect('/urls');
+    res.cookie('username', users[key]).redirect('/urls');
   })
   /*Updates cookies with username
    *******************************
@@ -195,15 +236,15 @@ app.post("/login", (req, res, next) => {
       if (value[email] === req.body['email']) {
         for (var pass in value) {
           if (value[pass] === req.body['password']) {
-            res.cookie('username', value['name']).redirect('/urls');
+            res.cookie('username', value).redirect('/urls');
           }
         }
       }
     }
-    var err = new Error();
-    err.status = 404;
-    next(err);
   }
+  var err = new Error();
+  err.status = 404;
+  next(err);
 });
 
 app.use(function(err, req, res, next) {

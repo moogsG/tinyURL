@@ -19,7 +19,14 @@
                         color:#ffffff;">
                     Shorten Any URL!
                 </h1>
+                <%if(username){%>
                 <% include ./partials/_form %>
+                <%}else {%>
+                <h2 style="color:#ffffff;">
+                Log in to get short!
+                </h2>
+                <% include ./partials/_login %>
+                <%};%>
             </div>
         </div>
         <div class="page-header">
@@ -27,7 +34,10 @@
         </div>
         <div class="content">
             <div class="container">
+            <%if(username){%>
                 <% include ./partials/_urlList %>
+                <%};%>
+            <% include ./partials/_publicList %>
             </div>
         </div>
 
