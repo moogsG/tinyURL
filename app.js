@@ -3,43 +3,22 @@ var path = require('path');
 var cookieSession = require('cookie-session');
 let app = express();
 const bodyParser = require("body-parser");
-
+var PORT = process.env.PORT || 8080;
+var bcrypt = require('bcrypt');
+let publicData = []; //For public URLS
 app.use(express.static("public")); //To grab images
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-
 app.use(cookieSession({
   name: 'session',
-  keys: [ 'key1', 'key2']
+  keys: ['key1', 'key2']
 }))
-
-var PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 
-var bcrypt = require('bcrypt');
-//Global functions
-
-/*Generates random six char string
- **************
+/*Database
+ **********
  */
-function generateRandomString() {
-  return Math.random().toString(36).substring(2, 8);
-}
-
-/*Not in play yet
- *************
- *
- *
- */
-function httpCheck(url) {
-  if (req.body['longURL'].includes('http://')) {
-    return;
-  } else {
-    return req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
-  }
-}
-
 let urlDatabase = {
   "b2xVn2": {
     shortURL: 'b2xVn2',
@@ -52,41 +31,55 @@ let urlDatabase = {
     userID: 't5sf3j'
   }
 };
-
+/*Password for test accounts
+*************
+*/
+var Example = bcrypt.hashSync('password', 10);
+var Example2 = bcrypt.hashSync('password2', 10);
 let users = {
   "d3ks8f": {
     id: "d3ks8f",
     name: "Example",
     email: "example@tinyapp.ca",
-    password: "password"
+    password: Example //password
   },
   "t5sf3j": {
     id: "t5sf3j",
     name: "Example2",
     email: "example2@tinyapp.ca",
-    password: "password2"
+    password: Example2 //password2
   }
 };
-let publicData = [];
 
+//Global functions
+
+/*Generates random six char string
+ **************
+ */
+function generateRandomString() {
+  return Math.random().toString(36).substring(2, 8);
+}
+
+/*Checks for urls by ID
+ ***********************
+ *Returns one object
+ *Sets Public URLS
+ */
 function urlsForUser(id) {
   publicData = [];
   let data = [];
   for (var x in urlDatabase) {
     if (urlDatabase[x].userID === id) {
-      console.log(urlDatabase[x])
       data[x] = {
         shortURL: urlDatabase[x].shortURL,
         url: urlDatabase[x].url,
         userID: urlDatabase[x].userID,
       }
-      console.log(data);
     } else {
       publicData[x] = {
         shortURL: urlDatabase[x].shortURL,
         url: urlDatabase[x].url
       }
-      console.log('Didnt match');
     }
   }
   return data;
@@ -121,31 +114,12 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
 
 /*Redirect to fullURL
  *********************
  *returns the full URL
  *if short URL does not exist will call 404
  */
-app.get("/urls/:id", (req, res, next) => {
-
-  let templateVars = {
-    username: req.session.username["user"],
-    shortURL: req.params.id,
-    targetURL: urlDatabase[req.params.id]
-  };
-  if (urlDatabase[req.params.id]) {
-    res.render("urls_show", templateVars);
-  } else {
-    var err = new Error();
-    err.status = 404;
-    next(err);
-  }
-});
 
 app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]['url']);
@@ -162,18 +136,24 @@ app.get("/u/:shortURL", (req, res) => {
  */
 
 app.post("/urls", (req, res) => {
-  if (req.body['longURL'].includes('http://')) {
-    return;
+  if (!req.session.username) {
+    var err = new Error();
+    err.status = 404;
+    next(err);
   } else {
-    req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+    if (req.body['longURL'].includes('http://')) {
+      return;
+    } else {
+      req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+    }
+    let key = generateRandomString();
+    urlDatabase[key] = {
+      shortURL: key,
+      url: req.body['longURL'],
+      userID: req.session.username.id
+    }
+    res.redirect('/urls');
   }
-  let key = generateRandomString();
-  urlDatabase[key] = {
-    shortURL: key,
-    url: req.body['longURL'],
-    userID: req.session.username.id
-  }
-  res.redirect('/urls'); // Respond with 'Ok' (we will replace this)
 });
 /*Deletes URL
  *************
@@ -181,13 +161,19 @@ app.post("/urls", (req, res) => {
  *Redirects to /urls
  */
 app.post("/urls/:id/delete", (req, res, next) => {
-  if (urlDatabase[req.params.id]) {
-    delete urlDatabase[req.params.id];
-    res.redirect('/urls');
-  } else {
+  if (!req.session.username) {
     var err = new Error();
     err.status = 404;
     next(err);
+  } else {
+    if (urlDatabase[req.params.id]) {
+      delete urlDatabase[req.params.id];
+      res.redirect('/urls');
+    } else {
+      var err = new Error();
+      err.status = 404;
+      next(err);
+    }
   }
 });
 /*Updates URL
@@ -197,71 +183,84 @@ app.post("/urls/:id/delete", (req, res, next) => {
  *Redirects to /urls
  */
 app.post("/urls/:id/update", (req, res) => {
-  if (req.body['longURL'].includes('http://')) {} else {
-    req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+  if (!req.session.username) {
+    var err = new Error();
+    err.status = 404;
+    next(err);
+  } else {
+    if (req.body['longURL'].includes('http://')) {} else {
+      req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
+    }
+    urlDatabase[req.body['shortURL']]['url'] = req.body['longURL'];
+    res.redirect('/urls');
   }
-  urlDatabase[req.body['shortURL']]['url'] = req.body['longURL'];
+});
+/*Creates User
+ *************
+ *Checks if user exists
+ *Adds user to database
+ */
+
+app.post("/register", (req, res, next) => {
+  let key = generateRandomString();
+  if (req.body['name'] && req.body['email'] && req.body['password']) {
+    for (var x in users) {
+      var user = users[x];
+      if (user.name === req.body['name'] || user.email === req.body['email']) {
+        var err = new Error();
+        err.status = 404;
+        return next(err);
+      }
+    }
+  } else {
+    var err = new Error();
+    err.status = 404;
+    return next(err);
+  }
+  let hash = bcrypt.hashSync(req.body['password'], 10);
+  users[key] = {
+    id: key,
+    name: req.body['name'],
+    email: req.body['email'],
+    password: hash
+  };
+  req.session.username = users[key];
   res.redirect('/urls');
 });
 
-app.post("/register", (req, res, next) => {
-    let key = generateRandomString();
-    for (var x in users) {
-      var value = users[x];
-      for (var i in value) {
-        if (value[i] == req.body['name'] || value[i] == req.body['email']) {
-          var err = new Error();
-          err.status = 404;
-          return next(err);
-        } else {
-
-        }
-      }
-    }
-    let hash = bcrypt.hashSync(req.body['password'], 10);
-    users[key] = {
-      id: key,
-      name: req.body['name'],
-      email: req.body['email'],
-      password: hash
-    };
-    req.session.username = users[key];
-    res.redirect('/urls');
-  })
-  /*Updates cookies with username
-   *******************************
-   *Adds cookie under username
-   *Returns to /urls
-   */
+/*Updates cookies with username
+ *******************************
+ *Adds cookie under username
+ *Returns to /urls
+ */
 app.post("/login", (req, res, next) => {
   for (var key in users) {
-    var value = users[key];
-    for (var email in value) {
-      if (value[email] === req.body['email']) {
-        if (bcrypt.compareSync(req.body['password'], value.password)) {
-          req.session.username = value;
-          res.redirect('/urls');
-        } else {
-          var err = new Error();
-          err.status = 404;
-          next(err);
-        };
-      }
+    var user = users[key];
+    if (user.email === req.body['email']) {
+      if (bcrypt.compareSync(req.body['password'], user.password)) {
+        req.session.username = user;
+        res.redirect('/urls');
+      } else {
+        var err = new Error();
+        err.status = 404;
+        next(err);
+      };
     }
   }
-
   var err = new Error();
   err.status = 404;
   next(err);
 });
 
+/*Error Handle*/
 app.use(function(err, req, res, next) {
   if (err.status !== 404) {
     return next();
   }
-
-  res.send(err.message || '404');
+  error = err;
+  res.render('error');
 });
+
 /*Clears cookies username
  **************************
  *Clears username cookie

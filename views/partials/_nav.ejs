@@ -1,22 +1,22 @@
 <div class="navbar navbar-light bg-light navbar-fixed-top" role="navigation">
   <div class="container-fluid">
     <div class="navbar-header">
-    <a class="navbar-brand" href="#"><p class="fa fa-hashtag"></p>tinyApp</a>
+      <a class="navbar-brand" href="#"><p class="fa fa-hashtag"></p>tinyApp</a>
     </div>
-      <ul class="nav navbar-nav navbar-right">
-        <%if(username){%>
+    <ul class="nav navbar-nav navbar-right">
+      <%if(username){%>
         <li class="nav-item">
           <form action="/logout" method="POST">
             <label for="username"><%= username.name%></label>
             <button type="submit" class="btn btn-defult" value="Submit">Logout</button>
           </form>
         </li>
-        <%}else{%>
+      <%}else{%>
         <li class="nav-item">
-        <% include ./_register %>
+          <% include ./_register %>
         </li>
-        <%};%>
-      </ul>
-    </div>
+      <%};%>
+    </ul>
   </div>
+</div>
 

@@ -1,3 +1,35 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<!DOCTYPE html>
+<html>
+    <head>
+        <% include ./partials/_header %>
+</head>
+    </head>
+    <body>
+        <div class="jumbotron" style="
+                                    background: url('/imgs/jumbotron.jpg') no-repeat center center fixed;
+                                    -webkit-background-size: cover;
+                                    -moz-background-size: cover;
+                                    -o-background-size: cover;
+                                    background-size: cover;
+                                    padding: 10em;">
+            <div class="container">
+                <h1 style="
+                        text-shadow: 2px 2px 8px black;
+                        color:#ffffff;">
+                  <%= error.status %>
+
+                </h1>
+            </div>
+        </div>
+        <div class="page-header">
+            <h1 class="text-center">Something Went Wrong...</h1>
+        </div>
+        <div class="content">
+            <div class="container">
+
+                <p><%= error.stack %></p>
+            </div>
+        </div>
+    </body>
+</html>
+

@@ -1,4 +1,5 @@
-<!-- <div class="list-group">
+<!-- Public list -->
+<div class="list-group">
   <table class="table">
     <thead class="thead-default">
       <tr>
@@ -7,10 +8,9 @@
       </tr>
       <%for (var key in publicUrls) {%>
       <tr>
-        <td><a href="/urls/<%=publicUrls[key]['shortURL']%>"> <%=publicUrls[key]['shortURL']%> </a></td>
+        <td><a href="/u/<%=publicUrls[key]['shortURL']%>"> <%=publicUrls[key]['shortURL']%> </a></td>
         <td><a href="<%=publicUrls[key]['url']%>"><%=publicUrls[key]['url']%></a></td>
     </tr>
     <%};%>
   <tbody>
 </table>
- -->

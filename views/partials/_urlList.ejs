@@ -7,8 +7,9 @@
         <th>Options</th>
       </tr>
       <%for(key in urls){%>
+      <!-- Loops over matching URLS -->
       <tr>
-        <td><a href="/urls/<%=key%>"> <%=key%> </a></td>
+        <td><a href="/u/<%=key%>"> <%=key%> </a></td>
         <td><a href="<%=urls[key]['url']%>"><%=urls[key]['url']%></a></td>
         <td>
           <button type="button" class="btn btn-danger fa fa-trash" data-toggle="modal" data-target="#delete<%=key%>"></button>

@@ -20,28 +20,27 @@
                     Shorten Any URL!
                 </h1>
                 <%if(username){%>
-                <% include ./partials/_form %>
+                    <% include ./partials/_form %>
                 <%}else {%>
-                <h2 style="color:#ffffff;">
-                Log in to get short!
-                </h2>
-                <% include ./partials/_login %>
+                    <h2 style="color:#ffffff;">
+                        Log in to get short!
+                    </h2>
+                    <% include ./partials/_login %>
                 <%};%>
             </div>
         </div>
+        <%if(username){%>
         <div class="page-header">
-            <h1 class="text-center">Recents</h1>
+            <h1 class="text-center">Personal URLS</h1>
         </div>
         <div class="content">
             <div class="container">
-            <%if(username){%>
                 <% include ./partials/_urlList %>
-                <%};%>
-            <% include ./partials/_publicList %>
+                <h2 class="text-center">Public URLS</h2>
+                <% include ./partials/_publicList %>
+            <%};%>
             </div>
         </div>
-
-
     </body>
 </html>
 
