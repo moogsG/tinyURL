@@ -1,6 +1,6 @@
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser')
+var cookieSession = require('cookie-session');
 let app = express();
 const bodyParser = require("body-parser");
 
@@ -9,14 +9,15 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-app.use(cookieParser())
-
+app.use(cookieSession({
+  name: 'session',
+  keys: [ 'key1', 'key2']
+}))
 
 var PORT = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 
 var bcrypt = require('bcrypt');
-const saltRounds = 10;
 //Global functions
 
 /*Generates random six char string
@@ -106,14 +107,14 @@ app.get("/", (req, res) => {
 app.get('/urls', (req, res) => {
   //let id = req.cookies.username.id;
   let data = [];
-  if (!req.cookies.username) {
+  if (!req.session.username) {
     data = urlsForUser(null);
   } else {
-    data = urlsForUser(req.cookies.username.id);
+    data = urlsForUser(req.session.username.id);
   }
 
   let templateVars = {
-    username: req.cookies.username,
+    username: req.session.username,
     urls: data,
     publicUrls: publicData
   }
@@ -133,7 +134,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res, next) => {
 
   let templateVars = {
-    username: req.cookies["user"],
+    username: req.session.username["user"],
     shortURL: req.params.id,
     targetURL: urlDatabase[req.params.id]
   };
@@ -170,7 +171,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[key] = {
     shortURL: key,
     url: req.body['longURL'],
-    userID: req.cookies.username.id
+    userID: req.session.username.id
   }
   res.redirect('/urls'); // Respond with 'Ok' (we will replace this)
 });
@@ -224,7 +225,8 @@ app.post("/register", (req, res, next) => {
       email: req.body['email'],
       password: hash
     };
-    res.cookie('username', users[key]).redirect('/urls');
+    req.session.username = users[key];
+    res.redirect('/urls');
   })
   /*Updates cookies with username
    *******************************
@@ -237,7 +239,8 @@ app.post("/login", (req, res, next) => {
     for (var email in value) {
       if (value[email] === req.body['email']) {
         if (bcrypt.compareSync(req.body['password'], value.password)) {
-          res.cookie('username', value).redirect('/urls');
+          req.session.username = value;
+          res.redirect('/urls');
         } else {
           var err = new Error();
           err.status = 404;
@@ -265,7 +268,8 @@ app.use(function(err, req, res, next) {
  *Returns to /urls
  */
 app.post("/logout", (req, res) => {
-  res.clearCookie('username').redirect('/urls');
+  req.session.username = null;
+  res.redirect('/urls');
 });
 
 module.exports = app;
