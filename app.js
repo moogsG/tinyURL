@@ -1,3 +1,4 @@
+var methodOverride = require('method-override');
 var express = require('express');
 var path = require('path');
 var cookieSession = require('cookie-session');
@@ -5,7 +6,9 @@ let app = express();
 const bodyParser = require("body-parser");
 var PORT = process.env.PORT || 8080;
 var bcrypt = require('bcrypt');
-let publicData = []; //For public URLS
+var getIP = require('ipware')().get_ip;
+let publicData = []; //For public urls
+app.use(methodOverride('_method'));
 app.use(express.static("public")); //To grab images
 app.use(bodyParser.urlencoded({
   extended: true
@@ -23,17 +26,22 @@ let urlDatabase = {
   "b2xVn2": {
     shortURL: 'b2xVn2',
     url: "http://www.lighthouselabs.ca",
-    userID: 'd3ks8f'
+    userID: 'd3ks8f',
+    clicks: '6',
+    uniqueClicks: ['127.0.0.1', '192.168.15.1']
   },
   "9sm5xK": {
     shortURL: '9sm5xK',
     url: "http://www.google.com",
-    userID: 't5sf3j'
+    userID: 't5sf3j',
+    clicks: '5',
+    uniqueClicks: ['127.0.0.1', '192.168.15.1']
   }
-};
+}
+
 /*Password for test accounts
-*************
-*/
+ *************
+ */
 var Example = bcrypt.hashSync('password', 10);
 var Example2 = bcrypt.hashSync('password2', 10);
 let users = {
@@ -64,6 +72,7 @@ function generateRandomString() {
  ***********************
  *Returns one object
  *Sets Public URLS
+ *Returns Object
  */
 function urlsForUser(id) {
   publicData = [];
@@ -74,6 +83,8 @@ function urlsForUser(id) {
         shortURL: urlDatabase[x].shortURL,
         url: urlDatabase[x].url,
         userID: urlDatabase[x].userID,
+        clicks: urlDatabase[x].clicks,
+        uniqueClicks: urlDatabase[x].uniqueClicks
       }
     } else {
       publicData[x] = {
@@ -84,21 +95,14 @@ function urlsForUser(id) {
   }
   return data;
 };
-// GET
-/*Set Root
- **********
- */
-app.get("/", (req, res) => {
-  res.end("Hello!");
-});
 
 /*Gets main page
  ****************
  * Sends username to cookies
  * Grabs view from urls_index
  */
-app.get('/urls', (req, res) => {
-  //let id = req.cookies.username.id;
+
+app.get('/', (req, res) => {
   let data = [];
   if (!req.session.username) {
     data = urlsForUser(null);
@@ -109,7 +113,8 @@ app.get('/urls', (req, res) => {
   let templateVars = {
     username: req.session.username,
     urls: data,
-    publicUrls: publicData
+    publicUrls: publicData,
+    error: null
   }
   res.render('urls_index', templateVars);
 });
@@ -122,6 +127,10 @@ app.get('/urls', (req, res) => {
  */
 
 app.get("/u/:shortURL", (req, res) => {
+  urlDatabase[req.params.shortURL]['uniqueClicks'].indexOf(getIP(req)['clientIp']) === -1 ?
+    urlDatabase[req.params.shortURL]['uniqueClicks'].push(getIP(req)['clientIp']) :
+    null; //Really ugly line of code.
+  urlDatabase[req.params.shortURL]['clicks']++;
   res.redirect(urlDatabase[req.params.shortURL]['url']);
 });
 
@@ -138,69 +147,71 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   if (!req.session.username) {
     var err = new Error();
-    err.status = 404;
+    err.status = 401;
+    err.message = "Please login to continue";
     next(err);
   } else {
-    if (req.body['longURL'].includes('http://')) {
-      return;
-    } else {
-      req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
-    }
     let key = generateRandomString();
     urlDatabase[key] = {
       shortURL: key,
       url: req.body['longURL'],
-      userID: req.session.username.id
+      userID: req.session.username.id,
+      clicks: '0',
+      uniqueClicks: []
     }
-    res.redirect('/urls');
+    res.redirect('/');
   }
 });
+
 /*Deletes URL
  *************
  *Matches shortURL, deletes match
  *Redirects to /urls
  */
-app.post("/urls/:id/delete", (req, res, next) => {
+app.delete("/urls/:id/delete", (req, res, next) => {
   if (!req.session.username) {
     var err = new Error();
-    err.status = 404;
+    err.status = 401;
+    err.message = "Please login to continue";
     next(err);
   } else {
-    if (urlDatabase[req.params.id]) {
+    let data = [];
+    data = urlsForUser(req.session.username.id)
+    if (data[req.params.id]) {
       delete urlDatabase[req.params.id];
-      res.redirect('/urls');
+      res.redirect('/');
     } else {
       var err = new Error();
       err.status = 404;
+      err.message = "That short url does not exist";
       next(err);
     }
   }
 });
+
 /*Updates URL
  *************
  *Checks new URL for http
  *Replaces old URL with matching key
  *Redirects to /urls
  */
-app.post("/urls/:id/update", (req, res) => {
+app.put("/urls/:id/update", (req, res) => {
   if (!req.session.username) {
     var err = new Error();
-    err.status = 404;
+    err.status = 401;
+    err.message = "Please login to continue";
     next(err);
   } else {
-    if (req.body['longURL'].includes('http://')) {} else {
-      req.body['longURL'] = req.body['longURL'].replace(/^/, 'http://');
-    }
     urlDatabase[req.body['shortURL']]['url'] = req.body['longURL'];
-    res.redirect('/urls');
+    res.redirect('/');
   }
 });
+
 /*Creates User
  *************
  *Checks if user exists
  *Adds user to database
  */
-
 app.post("/register", (req, res, next) => {
   let key = generateRandomString();
   if (req.body['name'] && req.body['email'] && req.body['password']) {
@@ -208,13 +219,15 @@ app.post("/register", (req, res, next) => {
       var user = users[x];
       if (user.name === req.body['name'] || user.email === req.body['email']) {
         var err = new Error();
-        err.status = 404;
+        err.status = 409;
+        err.message = "That username or email already exists";
         return next(err);
       }
     }
   } else {
     var err = new Error();
-    err.status = 404;
+    err.status = 406;
+    err.message = "Please enter a valid email.";
     return next(err);
   }
   let hash = bcrypt.hashSync(req.body['password'], 10);
@@ -225,7 +238,7 @@ app.post("/register", (req, res, next) => {
     password: hash
   };
   req.session.username = users[key];
-  res.redirect('/urls');
+  res.redirect('/');
 });
 
 /*Updates cookies with username
@@ -239,26 +252,47 @@ app.post("/login", (req, res, next) => {
     if (user.email === req.body['email']) {
       if (bcrypt.compareSync(req.body['password'], user.password)) {
         req.session.username = user;
-        res.redirect('/urls');
+        res.redirect('/');
       } else {
         var err = new Error();
-        err.status = 404;
+        err.status = 401;
+        err.message = "Wrong password."
         next(err);
       };
     }
   }
   var err = new Error();
   err.status = 404;
+  err.message = "Email is not registered."
   next(err);
 });
 
 /*Error Handle*/
+app.get('*', function(req, res, next) {
+  var err = new Error();
+  err.status = 404;
+  err.message = "Can't find that page!"
+  next(err);
+});
 app.use(function(err, req, res, next) {
-  if (err.status !== 404) {
+  if (!err.status) {
+
     return next();
   }
-  error = err;
-  res.render('error');
+  let data = [];
+  if (!req.session.username) {
+    data = urlsForUser(null);
+  } else {
+    data = urlsForUser(req.session.username.id);
+  }
+
+  let templateVars = {
+    urls: data,
+    username: req.session.username,
+    publicUrls: publicData,
+    error: err
+  }
+  res.render('urls_index', templateVars);
 });
 
 /*Clears cookies username
@@ -267,8 +301,8 @@ app.use(function(err, req, res, next) {
  *Returns to /urls
  */
 app.post("/logout", (req, res) => {
-  req.session.username = null;
-  res.redirect('/urls');
+  req.session = null;
+  res.redirect('/');
 });
 
 module.exports = app;
